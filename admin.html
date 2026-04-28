@@ -6,44 +6,32 @@
 <title>Admin — Daniels County Civic Voice</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  label { font-family:'Arial',sans-serif; font-size:13px; color:var(--text-muted); display:block; margin-bottom:5px; }
-  input[type=text],input[type=password],textarea { width:100%; padding:9px 12px; font-size:14px; font-family:'Arial',sans-serif; border:1px solid var(--border); border-radius:var(--radius); background:var(--bg-surface); color:var(--text); outline:none; }
-  input:focus,textarea:focus { border-color:var(--blue); }
-  textarea { resize:vertical; min-height:70px; }
-  .field { margin-bottom:1rem; }
-  .btn-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.5rem; }
-  .metric { background:var(--bg); border:1px solid var(--border-light); border-radius:var(--radius); padding:14px; text-align:center; }
-  .metric .num { font-size:26px; font-weight:bold; }
-  .metric .lbl { font-family:'Arial',sans-serif; font-size:12px; color:var(--text-muted); margin-top:3px; }
-  .tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:1.5rem; }
-  .tab { padding:9px 18px; font-family:'Arial',sans-serif; font-size:14px; cursor:pointer; border-bottom:2px solid transparent; color:var(--text-muted); margin-bottom:-1px; }
-  .tab.active { border-bottom-color:var(--blue); color:var(--blue); font-weight:bold; }
-  .q-card { border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:1.25rem; margin-bottom:1rem; background:var(--bg); }
-  .q-top { display:flex; align-items:flex-start; gap:12px; }
-  .q-body { flex:1; }
-  .q-text { font-size:15px; font-weight:bold; margin-bottom:6px; }
-  .q-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-family:'Arial',sans-serif; font-size:12px; color:var(--text-muted); }
-  .q-actions { display:flex; gap:6px; flex-shrink:0; flex-wrap:wrap; }
-  .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:5px; font-family:'Arial',sans-serif; font-size:13px; }
-  .bar-label { width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-muted); }
-  .bar-track { flex:1; background:var(--bg-surface2); border-radius:4px; height:18px; overflow:hidden; }
-  .bar-fill { height:100%; background:var(--blue); border-radius:4px; transition:width 0.4s; }
-  .bar-count { width:32px; text-align:right; font-weight:bold; }
-  .bar-pct { width:34px; color:var(--text-hint); }
-  .opt-list { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
-  .opt-row { display:flex; align-items:center; gap:8px; }
-  .opt-row input { flex:1; }
-  .opt-rm { width:30px; height:30px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:18px; flex-shrink:0; }
-  .comment-item { font-family:'Arial',sans-serif; font-size:13px; padding:6px 10px; background:var(--bg-surface); border-radius:var(--radius); margin-bottom:4px; }
-  .share-url { background:var(--bg-surface2); border:1px solid var(--border); border-radius:var(--radius); padding:8px 12px; font-family:'Courier New',monospace; font-size:12px; color:var(--text-muted); word-break:break-all; margin-bottom:6px; }
-  .login-wrap { max-width:360px; margin:3rem auto; }
-  .loading { text-align:center; padding:3rem; font-family:'Arial',sans-serif; color:var(--text-muted); }
-  .spinner { display:inline-block; width:20px; height:20px; border:2px solid var(--blue-mid); border-top-color:var(--blue); border-radius:50%; animation:spin 0.6s linear infinite; margin-bottom:0.5rem; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .badge-open { background:var(--green-light); color:var(--green); }
-  .badge-draft { background:var(--amber-light); color:var(--amber); }
-  .badge-closed { background:var(--gray-100); color:var(--gray-600); }
+  .metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .metric { background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius); padding: 14px; text-align: center; }
+  .metric .num { font-size: 26px; font-weight: bold; }
+  .metric .lbl { font-family: 'Arial', sans-serif; font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .tab { padding: 9px 18px; font-family: 'Arial', sans-serif; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-muted); margin-bottom: -1px; }
+  .tab.active { border-bottom-color: var(--blue); color: var(--blue); font-weight: bold; }
+  .q-card { border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; background: var(--bg); }
+  .q-top { display: flex; align-items: flex-start; gap: 12px; }
+  .q-body { flex: 1; }
+  .q-text { font-size: 15px; font-weight: bold; margin-bottom: 6px; line-height: 1.4; }
+  .q-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: 'Arial', sans-serif; font-size: 12px; color: var(--text-muted); }
+  .q-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-family: 'Arial', sans-serif; font-size: 13px; }
+  .bar-label { width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); }
+  .bar-track { flex: 1; background: var(--bg-surface2); border-radius: 4px; height: 20px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--blue); border-radius: 4px; transition: width 0.4s; }
+  .bar-count { width: 32px; text-align: right; font-weight: bold; }
+  .bar-pct { width: 36px; color: var(--text-hint); }
+  .opt-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .opt-row { display: flex; align-items: center; gap: 8px; }
+  .opt-row input { flex: 1; }
+  .opt-rm { width: 30px; height: 30px; border: none; background: none; cursor: pointer; color: var(--text-muted); font-size: 18px; flex-shrink: 0; }
+  .comment-item { font-family: 'Arial', sans-serif; font-size: 13px; padding: 6px 10px; background: var(--bg-surface); border-radius: var(--radius); margin-bottom: 4px; }
+  .share-url { background: var(--bg-surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-family: 'Courier New', monospace; font-size: 12px; color: var(--text-muted); word-break: break-all; margin-bottom: 6px; }
+  .login-wrap { max-width: 360px; margin: 3rem auto; }
 </style>
 </head>
 <body>
@@ -54,12 +42,12 @@
       <div class="nav-seal">DC</div>
       <div>
         <div class="nav-title">Daniels County Civic Voice</div>
-        <div class="nav-sub">Admin</div>
+        <div class="nav-sub">Admin Panel</div>
       </div>
     </a>
-    <div style="display:flex;gap:8px">
+    <div style="display:flex;gap:8px;align-items:center">
       <a href="index.html" class="btn btn-outline btn-sm">&#8592; View site</a>
-      <button class="btn btn-outline btn-sm" id="logout-btn" style="display:none" id="logout-btn">Sign out</button>
+      <button class="btn btn-outline btn-sm" id="logout-btn" style="display:none">Sign out</button>
     </div>
   </div>
 </nav>
@@ -74,7 +62,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, addDoc, updateDoc, deleteDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCQZAEJUwfVdJ8-PruuT3OC4VcDciJxttQ",
@@ -88,7 +76,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const ADMIN_PASSWORD = "daniels2024";
+  const ADMIN_PASSWORD = "danielsneedsGod";
   let authed = false;
   let currentTab = "questions";
   let editingId = null;
@@ -99,49 +87,19 @@
   const logoutBtn = document.getElementById("logout-btn");
 
   async function render() {
-    if (!authed) { root.innerHTML = buildLogin(); logoutBtn.style.display="none"; return; }
+    if (!authed) { root.innerHTML = buildLogin(); logoutBtn.style.display = "none"; attachLoginListeners(); return; }
     logoutBtn.style.display = "";
-    logoutBtn.onclick = () => { authed=false; render(); };
+    logoutBtn.onclick = () => { authed = false; render(); };
     root.innerHTML = `<div class="loading"><div class="spinner"></div><br>Loading surveys…</div>`;
     try {
       const snap = await getDocs(collection(db, "surveys"));
       allSurveys = [];
-      snap.forEach(d => allSurveys.push({ id:d.id, ...d.data() }));
+      snap.forEach(d => allSurveys.push({ id: d.id, ...d.data() }));
       allSurveys.sort((a,b) => (b.created?.seconds||0) - (a.created?.seconds||0));
       renderDashboard();
     } catch(e) {
       root.innerHTML = `<div class="alert alert-warn">Error loading data: ${e.message}</div>`;
     }
-  }
-
-  function renderDashboard() {
-    const openCount = allSurveys.filter(s=>s.status==="open").length;
-    let totalVotes = 0;
-    allSurveys.forEach(s => { Object.values(s.responses||{}).forEach(v => totalVotes += Number(v)); });
-
-    root.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
-        <h1 style="font-size:1.4rem">Survey Administration</h1>
-        <button class="btn btn-sm" style="border-color:var(--border)" id="export-btn">Export results CSV</button>
-      </div>
-      <div class="metrics">
-        <div class="metric"><div class="num">${allSurveys.length}</div><div class="lbl">Total questions</div></div>
-        <div class="metric"><div class="num" style="color:var(--blue)">${openCount}</div><div class="lbl">Currently open</div></div>
-        <div class="metric"><div class="num" style="color:var(--green)">${totalVotes}</div><div class="lbl">Total responses</div></div>
-      </div>
-      <div class="tabs">
-        <div class="tab ${currentTab==="questions"?"active":""}" id="tab-questions">Questions &amp; Results</div>
-        <div class="tab ${currentTab==="create"?"active":""}" id="tab-create">${editingId?"Edit Question":"+ New Question"}</div>
-      </div>
-      <div id="tab-body">${currentTab==="questions" ? buildQList() : buildForm()}</div>
-    `;
-
-    document.getElementById("tab-questions").onclick = () => { currentTab="questions"; editingId=null; renderDashboard(); };
-    document.getElementById("tab-create").onclick = () => { currentTab="create"; renderDashboard(); };
-    document.getElementById("export-btn").onclick = exportCSV;
-
-    if (currentTab === "questions") attachQListeners();
-    else attachFormListeners();
   }
 
   function buildLogin() {
@@ -155,54 +113,114 @@
     </div></div>`;
   }
 
-  function buildQList() {
-    if (!allSurveys.length) return `<div style="text-align:center;color:var(--text-muted);padding:3rem;font-family:'Arial',sans-serif">No questions yet — click "+ New Question" to get started.</div>`;
+  function attachLoginListeners() {
+    setTimeout(() => {
+      const btn = document.getElementById("login-btn");
+      const inp = document.getElementById("apass");
+      if (btn) btn.addEventListener("click", doLogin);
+      if (inp) inp.addEventListener("keydown", e => { if(e.key==="Enter") doLogin(); });
+    }, 50);
+  }
+
+  function doLogin() {
+    const p = (document.getElementById("apass")||{}).value||"";
+    if (p === ADMIN_PASSWORD) { authed = true; render(); }
+    else { const e = document.getElementById("lerr"); if(e) e.textContent = "Incorrect password."; }
+  }
+
+  function renderDashboard() {
+    const openCount = allSurveys.filter(s => s.status === "open").length;
+    let totalVotes = 0;
+    allSurveys.forEach(s => { Object.values(s.responses||{}).forEach(v => totalVotes += Number(v)); });
     const shareBase = window.location.origin + window.location.pathname.replace("admin.html","survey.html");
+
+    root.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+        <h1 style="font-size:1.4rem">Survey Administration</h1>
+        <button class="btn btn-sm" style="border:1px solid var(--border)" id="export-btn">Export CSV</button>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="num">${allSurveys.length}</div><div class="lbl">Total questions</div></div>
+        <div class="metric"><div class="num" style="color:var(--blue)">${openCount}</div><div class="lbl">Currently open</div></div>
+        <div class="metric"><div class="num" style="color:var(--green)">${totalVotes}</div><div class="lbl">Total responses</div></div>
+      </div>
+      <div class="tabs">
+        <div class="tab ${currentTab==="questions"?"active":""}" id="tab-q">Questions &amp; Results</div>
+        <div class="tab ${currentTab==="create"?"active":""}" id="tab-c">${editingId ? "Edit Question" : "+ New Question"}</div>
+      </div>
+      <div id="tab-body">${currentTab==="questions" ? buildQList(shareBase) : buildForm()}</div>
+    `;
+
+    document.getElementById("tab-q").onclick = () => { currentTab="questions"; editingId=null; renderDashboard(); };
+    document.getElementById("tab-c").onclick = () => { currentTab="create"; renderDashboard(); };
+    document.getElementById("export-btn").onclick = exportCSV;
+    if (currentTab === "questions") attachQListeners();
+    else attachFormListeners();
+  }
+
+  function buildQList(shareBase) {
+    if (!allSurveys.length) return `<div style="text-align:center;color:var(--text-muted);padding:3rem;font-family:'Arial',sans-serif;font-size:14px">No questions yet — click "+ New Question" to get started.</div>`;
     return allSurveys.map(s => {
       const resp = s.responses || {};
-      const total = Object.values(resp).reduce((a,b)=>a+Number(b),0);
+      const total = Object.values(resp).reduce((a,b) => a+Number(b), 0);
       const bars = (s.options||[]).map((opt,i) => {
         const count = Number(resp[`opt_${i}`]||0);
         const pct = total ? Math.round(count/total*100) : 0;
-        return `<div class="bar-row"><span class="bar-label" title="${opt}">${opt}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><span class="bar-count">${count}</span><span class="bar-pct">${pct}%</span></div>`;
+        return `<div class="bar-row">
+          <span class="bar-label" title="${opt}">${opt}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+          <span class="bar-count">${count}</span>
+          <span class="bar-pct">${pct}%</span>
+        </div>`;
       }).join("");
       const comments = s.comments||[];
       let cmtHtml = "";
       if (comments.length) {
-        cmtHtml = `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)"><div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:6px">Written comments (${comments.length})</div>${comments.slice(0,5).map(c=>`<div class="comment-item">${c}</div>`).join("")}${comments.length>5?`<div style="font-size:12px;color:var(--text-hint);font-family:'Arial',sans-serif">…and ${comments.length-5} more</div>`:""}</div>`;
+        cmtHtml = `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">
+          <div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:6px">Written comments (${comments.length})</div>
+          ${comments.slice(0,5).map(c=>`<div class="comment-item">${c}</div>`).join("")}
+          ${comments.length>5?`<div style="font-size:12px;color:var(--text-hint);font-family:'Arial',sans-serif">…and ${comments.length-5} more</div>`:""}
+        </div>`;
       }
       const bc = s.status==="open"?"badge-open":s.status==="draft"?"badge-draft":"badge-closed";
       const bl = s.status==="open"?"Open":s.status==="draft"?"Draft":"Closed";
       const dateStr = s.created?.seconds ? new Date(s.created.seconds*1000).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "—";
-      return `<div class="q-card" id="qc_${s.id}">
+      return `<div class="q-card">
         <div class="q-top">
           <div class="q-body">
             <div class="q-text">${s.question}</div>
-            <div class="q-meta" style="margin-top:6px"><span class="badge ${bc}">${bl}</span><span>${total} response${total!==1?"s":""}</span><span>${dateStr}</span></div>
+            <div class="q-meta" style="margin-top:6px">
+              <span class="badge ${bc}">${bl}</span>
+              <span>${total} response${total!==1?"s":""}</span>
+              <span>${dateStr}</span>
+            </div>
           </div>
           <div class="q-actions">
-            ${s.status==="open"?`<button class="btn btn-sm q-action" data-id="${s.id}" data-action="close">Close</button>`:""}
-            ${s.status==="draft"?`<button class="btn btn-sm btn-primary q-action" data-id="${s.id}" data-action="open">Publish</button>`:""}
-            ${s.status==="closed"?`<button class="btn btn-sm btn-success q-action" data-id="${s.id}" data-action="open">Reopen</button>`:""}
-            <button class="btn btn-sm q-action" data-id="${s.id}" data-action="edit">Edit</button>
-            <button class="btn btn-sm q-action" data-id="${s.id}" data-action="delete" style="color:var(--red);border-color:#f7c1c1;background:var(--red-light)">Delete</button>
+            ${s.status==="open"?`<button class="btn btn-sm q-act" data-id="${s.id}" data-act="close">Close</button>`:""}
+            ${s.status==="draft"?`<button class="btn btn-sm btn-primary q-act" data-id="${s.id}" data-act="open">Publish</button>`:""}
+            ${s.status==="closed"?`<button class="btn btn-sm btn-success q-act" data-id="${s.id}" data-act="open">Reopen</button>`:""}
+            <button class="btn btn-sm q-act" data-id="${s.id}" data-act="edit">Edit</button>
+            <button class="btn btn-sm q-act" data-id="${s.id}" data-act="delete" style="color:var(--red);border-color:#f7c1c1;background:var(--red-light)">Delete</button>
           </div>
         </div>
         ${total > 0 ? `<div style="margin-top:12px">${bars}</div>` : ""}
         ${cmtHtml}
-        ${s.status==="open"?`<div style="margin-top:12px"><div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:5px">Share with residents:</div><div class="share-url">${shareBase}</div><button class="btn btn-sm copy-btn" data-url="${shareBase}">Copy survey link</button></div>`:""}
+        ${s.status==="open" ? `<div style="margin-top:12px">
+          <div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:5px">Share this link with residents:</div>
+          <div class="share-url">${shareBase}</div>
+          <button class="btn btn-sm copy-btn" data-url="${shareBase}">Copy survey link</button>
+        </div>` : ""}
       </div>`;
     }).join("");
   }
 
   function attachQListeners() {
-    document.querySelectorAll(".q-action").forEach(btn => {
+    document.querySelectorAll(".q-act").forEach(btn => {
       btn.addEventListener("click", async () => {
-        const id = btn.dataset.id;
-        const action = btn.dataset.action;
-        if (action === "edit") { editingId = id; currentTab = "create"; renderDashboard(); }
-        else if (action === "delete") { if(confirm("Delete this question and all responses?")) { await deleteDoc(doc(db,"surveys",id)); await render(); } }
-        else if (action === "open" || action === "close") { await updateDoc(doc(db,"surveys",id), { status: action==="open"?"open":"closed" }); await render(); }
+        const id = btn.dataset.id, act = btn.dataset.act;
+        if (act === "edit") { editingId = id; currentTab = "create"; renderDashboard(); }
+        else if (act === "delete") { if(confirm("Delete this question and all responses? This cannot be undone.")) { await deleteDoc(doc(db,"surveys",id)); await render(); } }
+        else { await updateDoc(doc(db,"surveys",id), { status: act==="open"?"open":"closed" }); await render(); }
       });
     });
     document.querySelectorAll(".copy-btn").forEach(btn => {
@@ -213,19 +231,32 @@
   }
 
   function buildForm() {
-    let ex = editingId ? allSurveys.find(s=>s.id===editingId) : null;
+    const ex = editingId ? allSurveys.find(s=>s.id===editingId) : null;
     const q = ex ? ex.question : "";
     const ctx = ex ? (ex.context||"") : "";
     const opts = ex ? ex.options : ["","",""];
     const ac = ex ? (ex.allowComment||false) : false;
     optCount = opts.length;
-    const optsHtml = opts.map((o,i) => `<div class="opt-row" id="or_${i}"><input type="text" id="opt_${i}" value="${o.replace(/"/g,'&quot;')}" placeholder="Option ${i+1}">${i>=2?`<button class="opt-rm" data-i="${i}">×</button>`:`<span style="width:30px"></span>`}</div>`).join("");
+    const optsHtml = opts.map((o,i) => `
+      <div class="opt-row" id="or_${i}">
+        <input type="text" id="opt_${i}" value="${o.replace(/"/g,'&quot;')}" placeholder="Option ${i+1}">
+        ${i>=2?`<button class="opt-rm" data-i="${i}">×</button>`:`<span style="width:30px"></span>`}
+      </div>`).join("");
     return `<div class="card">
       <div class="field"><label>Question *</label><textarea id="nq" placeholder="What do you want to ask Daniels County residents?">${q}</textarea></div>
       <div class="field"><label>Context for residents (optional)</label><textarea id="nc" placeholder="Brief background — what's being decided and why it matters.">${ctx}</textarea></div>
-      <div class="field"><label>Response options * (minimum 2)</label><div class="opt-list" id="opt-list">${optsHtml}</div><button class="btn btn-sm" id="add-opt">+ Add option</button></div>
-      <div class="field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px"><input type="checkbox" id="nac" ${ac?"checked":""} style="accent-color:var(--blue)"> Allow optional written comment (anonymous)</label></div>
-      <hr style="margin:1.25rem 0">
+      <div class="field">
+        <label>Response options * (minimum 2)</label>
+        <div class="opt-list" id="opt-list">${optsHtml}</div>
+        <button class="btn btn-sm" id="add-opt">+ Add option</button>
+      </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px">
+          <input type="checkbox" id="nac" ${ac?"checked":""} style="accent-color:var(--blue)">
+          Allow optional written comment (anonymous)
+        </label>
+      </div>
+      <hr>
       <div class="btn-row">
         <button class="btn" id="save-draft">Save as draft</button>
         <button class="btn btn-success" id="save-open">Publish — go live now</button>
@@ -246,14 +277,14 @@
       d.querySelector(".opt-rm").addEventListener("click", () => d.remove());
     });
     document.querySelectorAll(".opt-rm").forEach(btn => {
-      btn.addEventListener("click", () => { document.getElementById("or_"+btn.dataset.i)?.remove(); });
+      btn.addEventListener("click", () => document.getElementById("or_"+btn.dataset.i)?.remove());
     });
-    document.getElementById("save-draft")?.addEventListener("click", () => saveQuestion("draft"));
-    document.getElementById("save-open")?.addEventListener("click", () => saveQuestion("open"));
+    document.getElementById("save-draft")?.addEventListener("click", () => saveQ("draft"));
+    document.getElementById("save-open")?.addEventListener("click", () => saveQ("open"));
     document.getElementById("cancel-edit")?.addEventListener("click", () => { editingId=null; currentTab="questions"; renderDashboard(); });
   }
 
-  async function saveQuestion(status) {
+  async function saveQ(status) {
     const q = document.getElementById("nq")?.value||"";
     const ctx = document.getElementById("nc")?.value||"";
     const ac = document.getElementById("nac")?.checked||false;
@@ -278,7 +309,7 @@
   }
 
   function exportCSV() {
-    let csv = "Question,Option,Responses,Percent,Status,Date Created\n";
+    let csv = "Question,Option,Responses,Percent,Status,Date\n";
     allSurveys.forEach(s => {
       const resp = s.responses||{};
       const total = Object.values(resp).reduce((a,b)=>a+Number(b),0);
@@ -291,28 +322,12 @@
     });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-    a.download = "dcvc-survey-results.csv";
+    a.download = "dcvc-results.csv";
     a.click();
   }
 
-  // Login
-  setTimeout(() => {
-    const loginBtn = document.getElementById("login-btn");
-    if (loginBtn) {
-      loginBtn.addEventListener("click", () => {
-        const p = document.getElementById("apass")?.value||"";
-        if (p === ADMIN_PASSWORD) { authed=true; render(); }
-        else { const e=document.getElementById("lerr"); if(e) e.textContent="Incorrect password."; }
-      });
-      document.getElementById("apass")?.addEventListener("keydown", e => { if(e.key==="Enter") loginBtn.click(); });
-    }
-  }, 100);
-
   render();
 </script>
-
-<script>
-function toggleMenu() { document.getElementById('nav-links').classList.toggle('open'); }
-</script>
+<script>function toggleMenu() { document.getElementById('nav-links').classList.toggle('open'); }</script>
 </body>
 </html>
