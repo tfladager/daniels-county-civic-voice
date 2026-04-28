@@ -4,766 +4,88 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daniels County Civic Voice</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --blue-50: #E6F1FB;
-    --blue-100: #B5D4F4;
-    --blue-600: #185FA5;
-    --blue-800: #0C447C;
-    --green-50: #EAF3DE;
-    --green-600: #3B6D11;
-    --amber-50: #FAEEDA;
-    --amber-600: #854F0B;
-    --amber-700: #633806;
-    --gray-50: #F1EFE8;
-    --gray-200: #B4B2A9;
-    --gray-500: #5F5E5A;
-    --red-50: #FCEBEB;
-    --red-600: #A32D2D;
-    --border: #d0cfc8;
-    --border-light: #e8e7e2;
-    --text: #1a1a18;
-    --text-muted: #5F5E5A;
-    --text-hint: #888780;
-    --bg: #ffffff;
-    --bg-surface: #f8f7f4;
-    --bg-surface2: #f1f0ec;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --border: #3a3a36;
-      --border-light: #2e2e2a;
-      --text: #f0efe8;
-      --text-muted: #a0a09a;
-      --text-hint: #6a6a64;
-      --bg: #1a1a18;
-      --bg-surface: #222220;
-      --bg-surface2: #2a2a28;
-      --blue-50: #0c2540;
-      --blue-100: #163a60;
-      --green-50: #0f2a08;
-      --amber-50: #2a1e08;
-      --red-50: #2a0f0f;
-    }
-  }
-
-  body {
-    font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 16px;
-    color: var(--text);
-    background: var(--bg-surface);
-    min-height: 100vh;
-  }
-
-  .page-header {
-    background: var(--blue-600);
-    padding: 0;
-    border-bottom: 3px solid var(--blue-800);
-  }
-  .header-inner {
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-  .header-brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .header-seal {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    border: 1.5px solid rgba(255,255,255,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .header-seal svg { width: 28px; height: 28px; fill: white; }
-  .brand-name { color: white; font-size: 17px; font-weight: bold; letter-spacing: 0.01em; }
-  .brand-sub { color: rgba(255,255,255,0.7); font-size: 12px; font-family: 'Arial', sans-serif; margin-top: 1px; }
-  .header-nav { display: flex; gap: 6px; }
-  .nav-btn {
-    padding: 7px 16px;
-    font-size: 13px;
-    font-family: 'Arial', sans-serif;
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    background: transparent;
-    color: rgba(255,255,255,0.85);
-    transition: background 0.15s;
-  }
-  .nav-btn:hover { background: rgba(255,255,255,0.12); }
-  .nav-btn.active { background: rgba(255,255,255,0.2); color: white; border-color: rgba(255,255,255,0.6); }
-
-  .main { max-width: 780px; margin: 0 auto; padding: 2rem 1.5rem; }
-
-  .card {
-    background: var(--bg);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    margin-bottom: 1.25rem;
-  }
-  .card-title {
-    font-family: 'Arial', sans-serif;
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-hint);
-    margin-bottom: 1rem;
-  }
-
-  /* Forms */
-  label { font-family: 'Arial', sans-serif; font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px; }
-  input[type=text], input[type=password], textarea, select {
-    width: 100%;
-    padding: 9px 12px;
-    font-size: 14px;
-    font-family: 'Arial', sans-serif;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--bg-surface);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  input:focus, textarea:focus, select:focus { border-color: var(--blue-600); }
-  textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
-  .field { margin-bottom: 1rem; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  /* Buttons */
-  .btn {
-    padding: 9px 18px;
-    font-size: 14px;
-    font-family: 'Arial', sans-serif;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    transition: background 0.15s, transform 0.08s;
-  }
-  .btn:hover { background: var(--bg-surface2); }
-  .btn:active { transform: scale(0.98); }
-  .btn-primary { background: var(--blue-600); color: white; border-color: var(--blue-600); }
-  .btn-primary:hover { background: var(--blue-800); }
-  .btn-success { background: var(--green-600); color: white; border-color: var(--green-600); }
-  .btn-danger { background: var(--red-50); color: var(--red-600); border-color: #f7c1c1; }
-  .btn-sm { padding: 5px 12px; font-size: 12px; }
-  .btn-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-  /* Alerts */
-  .alert {
-    padding: 10px 14px;
-    border-radius: var(--radius-md);
-    font-family: 'Arial', sans-serif;
-    font-size: 13px;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-  }
-  .alert-info { background: var(--blue-50); color: var(--blue-800); border: 1px solid var(--blue-100); }
-  .alert-success { background: var(--green-50); color: var(--green-600); }
-  .alert-warn { background: var(--amber-50); color: var(--amber-700); }
-  .alert-err { background: var(--red-50); color: var(--red-600); }
-
-  /* Status badges */
-  .badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-family: 'Arial', sans-serif;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .badge-open { background: var(--green-50); color: var(--green-600); }
-  .badge-draft { background: var(--amber-50); color: var(--amber-600); }
-  .badge-closed { background: var(--gray-50); color: var(--gray-500); }
-
-  /* Metric cards */
-  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
-  .metric { background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 12px; text-align: center; }
-  .metric .num { font-size: 26px; font-weight: bold; color: var(--text); }
-  .metric .num.blue { color: var(--blue-600); }
-  .metric .num.green { color: var(--green-600); }
-  .metric .lbl { font-family: 'Arial', sans-serif; font-size: 12px; color: var(--text-muted); margin-top: 3px; }
-
-  /* Tabs */
-  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; }
-  .tab { padding: 9px 18px; font-family: 'Arial', sans-serif; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-muted); margin-bottom: -1px; }
-  .tab.active { border-bottom-color: var(--blue-600); color: var(--blue-600); font-weight: bold; }
-
-  /* Survey question card (admin) */
-  .q-card { border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; background: var(--bg); }
-  .q-card-top { display: flex; align-items: flex-start; gap: 12px; }
-  .q-card-body { flex: 1; }
-  .q-text { font-size: 15px; font-weight: bold; margin-bottom: 6px; line-height: 1.4; }
-  .q-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: 'Arial', sans-serif; font-size: 12px; color: var(--text-muted); }
-  .q-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .divider { border: none; border-top: 1px solid var(--border-light); margin: 1rem 0; }
-
-  /* Results bars */
-  .results { margin-top: 12px; }
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-family: 'Arial', sans-serif; font-size: 13px; }
-  .bar-label { width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); }
-  .bar-track { flex: 1; background: var(--bg-surface2); border-radius: 4px; height: 20px; overflow: hidden; }
-  .bar-fill { height: 100%; background: var(--blue-600); border-radius: 4px; transition: width 0.5s ease; }
-  .bar-count { width: 36px; text-align: right; font-weight: bold; }
-  .bar-pct { width: 36px; color: var(--text-hint); }
-
-  /* Options list (create form) */
-  .opt-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
-  .opt-row { display: flex; align-items: center; gap: 8px; }
-  .opt-row input { flex: 1; }
-  .opt-rm { width: 30px; height: 30px; border: none; background: none; cursor: pointer; color: var(--text-muted); font-size: 18px; line-height: 1; flex-shrink: 0; }
-
-  /* Citizen survey */
-  .verify-wrap { max-width: 420px; margin: 0 auto; }
-  .verify-intro { text-align: center; margin-bottom: 2rem; }
-  .verify-icon { font-size: 36px; margin-bottom: 0.75rem; }
-  .verify-title { font-size: 20px; font-weight: bold; margin-bottom: 0.5rem; }
-  .verify-sub { font-family: 'Arial', sans-serif; font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-  .verify-fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.25rem; }
-  .verify-or { text-align: center; font-family: 'Arial', sans-serif; font-size: 13px; color: var(--text-hint); margin: 4px 0; }
-
-  .citizen-q-card { border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; background: var(--bg); }
-  .cq-title { font-size: 17px; font-weight: bold; margin-bottom: 8px; line-height: 1.4; }
-  .cq-context { font-family: 'Arial', sans-serif; font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.6; padding: 10px 12px; background: var(--bg-surface); border-radius: var(--radius-md); border-left: 3px solid var(--blue-100); }
-  .radio-opt {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    margin-bottom: 6px;
-    cursor: pointer;
-    font-family: 'Arial', sans-serif;
-    font-size: 14px;
-    transition: border-color 0.12s, background 0.12s;
-  }
-  .radio-opt:hover { background: var(--bg-surface); }
-  .radio-opt.selected { border-color: var(--blue-600); background: var(--blue-50); color: var(--blue-800); }
-  .radio-opt input[type=radio] { accent-color: var(--blue-600); flex-shrink: 0; }
-
-  .share-box {
-    background: var(--bg-surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 10px 14px;
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    color: var(--text-muted);
-    word-break: break-all;
-    margin-bottom: 8px;
-  }
-
-  .login-wrap { max-width: 360px; margin: 2rem auto; }
-
-  .empty { text-align: center; color: var(--text-muted); font-family: 'Arial', sans-serif; font-size: 14px; padding: 3rem 0; }
-
-  .comments-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light); }
-  .comment-pill { font-family: 'Arial', sans-serif; font-size: 13px; padding: 6px 10px; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 4px; color: var(--text); }
-
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--blue-100); border-top-color: var(--blue-600); border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .hidden { display: none !important; }
-
-  @media (max-width: 500px) {
-    .header-inner { flex-direction: column; align-items: flex-start; }
-    .metrics { grid-template-columns: repeat(3, 1fr); }
-    .row2 { grid-template-columns: 1fr; }
-    .q-card-top { flex-direction: column; }
-    .q-actions { flex-wrap: wrap; }
-  }
-
-  footer {
-    text-align: center;
-    font-family: 'Arial', sans-serif;
-    font-size: 12px;
-    color: var(--text-hint);
-    padding: 2rem 1rem;
-    border-top: 1px solid var(--border-light);
-    margin-top: 2rem;
-  }
-</style>
+<meta name="description" content="Informed citizens, better decisions. Your source for Daniels County government news, surveys, and local voices.">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="page-header">
-  <div class="header-inner">
-    <div class="header-brand">
-      <div class="header-seal">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18L19 8v8l-7 3.88L5 16V8l7-3.82zM12 7a5 5 0 100 10A5 5 0 0012 7zm0 2a3 3 0 110 6 3 3 0 010-6z"/>
-        </svg>
-      </div>
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-seal">DC</div>
       <div>
-        <div class="brand-name">Daniels County Civic Voice</div>
-        <div class="brand-sub">Resident Input Platform &nbsp;·&nbsp; Daniels County, Montana</div>
+        <div class="nav-title">Daniels County Civic Voice</div>
+        <div class="nav-sub">Informed citizens, better decisions</div>
       </div>
-    </div>
-    <div class="header-nav">
-      <button class="nav-btn active" id="btn-citizen" onclick="switchMode('citizen')">Citizen Survey</button>
-      <button class="nav-btn" id="btn-admin" onclick="switchMode('admin')">Commissioner</button>
+    </a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="survey.html">Have Your Say</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1>Your county. Your voice.<br>Your decisions.</h1>
+    <p>Daniels County Civic Voice brings you honest, plain-language information about local government — and gives you a real way to weigh in.</p>
+    <div class="hero-btns">
+      <a href="survey.html" class="btn btn-white">Take the current survey</a>
+      <a href="about.html" class="btn btn-outline">Learn more</a>
     </div>
   </div>
-</header>
+</section>
 
-<main class="main">
-  <div id="view-citizen"></div>
-  <div id="view-admin" class="hidden"></div>
-</main>
+<div class="page">
 
-<footer>
-  Daniels County Civic Voice &nbsp;·&nbsp; Anonymous responses only &nbsp;·&nbsp; Verified Daniels County residents
+  <div class="card-label" style="margin-bottom:0.75rem">What is this?</div>
+  <div class="grid-3">
+    <a href="survey.html" class="card" style="text-decoration:none;color:inherit;display:block">
+      <div class="card-label">Active now</div>
+      <h2>Have Your Say</h2>
+      <p>Anonymous, verified surveys on real county decisions. Your opinion matters — and your commissioners are listening.</p>
+      <div style="margin-top:1rem"><span class="badge badge-green">Respond now →</span></div>
+    </a>
+    <div class="card">
+      <div class="card-label">Coming soon</div>
+      <h2>Meeting Agendas</h2>
+      <p>Plain-language summaries of what's on the table at upcoming Daniels County Commissioner meetings.</p>
+      <div style="margin-top:1rem"><span class="badge badge-gray">Coming soon</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Coming soon</div>
+      <h2>Local Voices Podcast</h2>
+      <p>Conversations with candidates, officials, and community members. Real people, real issues, no spin.</p>
+      <div style="margin-top:1rem"><span class="badge badge-gray">Coming soon</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="background:var(--blue-light);border-color:var(--blue-mid)">
+    <div class="card-label" style="color:var(--blue-dark)">About this site</div>
+    <h2 style="color:var(--blue-dark);margin-bottom:0.5rem">Built for Daniels County. By Daniels County.</h2>
+    <p style="color:var(--blue-dark)">Daniels County Civic Voice is a nonpartisan, community-run platform. We don't sell ads, we don't have an agenda, and we don't take sides — we give residents honest information and a real way to participate in local government.</p>
+    <a href="about.html" class="btn btn-primary btn-sm" style="margin-top:1rem;display:inline-block">Learn more</a>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="survey.html">Have Your Say</a>
+    <a href="about.html">About</a>
+  </div>
+  <div>Daniels County Civic Voice &nbsp;·&nbsp; Serving Scobey, Peerless, Whitetail, Flaxville and all of Daniels County, Montana</div>
+  <div style="margin-top:0.4rem;font-size:12px;opacity:0.6">Nonpartisan &nbsp;·&nbsp; No ads &nbsp;·&nbsp; Community-run</div>
 </footer>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
-const ADMIN_PASSWORD = "danielsneedsGod";
-const VALID_ZIPS = ["59263", "59253", "59276", "59222"];
-
-// ── STATE ───────────────────────────────────────────────────────────────────
-let adminAuthed = false;
-let currentTab = "questions";
-let editingId = null;
-let citizenVerified = false;
-let citizenToken = null;
-let selectedAnswers = {};
-let optionCount = 3;
-
-// ── STORAGE HELPERS (localStorage — works in any browser, no server needed) ──
-async function loadData(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
-async function saveData(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { console.error(e); }
-}
-
-const SK = { surveys: "dc_surveys_v2", responses: "dc_responses_v2", tokens: "dc_tokens_v2" };
-
-function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
-function genToken() { return Math.random().toString(36).substr(2,14).toUpperCase(); }
-
-// ── MODE SWITCH ──────────────────────────────────────────────────────────────
-function switchMode(mode) {
-  document.getElementById("btn-citizen").classList.toggle("active", mode === "citizen");
-  document.getElementById("btn-admin").classList.toggle("active", mode === "admin");
-  document.getElementById("view-citizen").classList.toggle("hidden", mode !== "citizen");
-  document.getElementById("view-admin").classList.toggle("hidden", mode !== "admin");
-  if (mode === "admin") renderAdmin();
-  else renderCitizen();
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// CITIZEN SIDE
-// ══════════════════════════════════════════════════════════════════════════════
-async function renderCitizen() {
-  const el = document.getElementById("view-citizen");
-  if (!citizenVerified) { el.innerHTML = buildVerifyScreen(); return; }
-  const surveys = await loadData(SK.surveys, []);
-  const open = surveys.filter(s => s.status === "open");
-  if (open.length === 0) {
-    el.innerHTML = `<div class="card"><div class="empty">No active surveys right now.<br>Check back soon — your commissioners will post questions here.</div></div>`;
-    return;
-  }
-  const responses = await loadData(SK.responses, {});
-  let html = `<div class="alert alert-info">Your responses are completely anonymous. No names, contact info, or personal data are collected. One response per device per question.</div>`;
-  for (const s of open) {
-    const alreadyVoted = localStorage.getItem("voted_" + s.id);
-    html += buildCitizenQuestion(s, responses[s.id] || {}, alreadyVoted);
-  }
-  el.innerHTML = html;
-}
-
-function buildVerifyScreen() {
-  return `<div class="verify-wrap">
-    <div class="card">
-      <div class="verify-intro">
-        <div class="verify-icon">&#128205;</div>
-        <div class="verify-title">Verify Your Residency</div>
-        <div class="verify-sub">This survey is for Daniels County residents. Please confirm your residency using one of the two options below. No personal information is stored.</div>
-      </div>
-      <div class="verify-fields">
-        <div class="field">
-          <label>Option 1 — Your ZIP code</label>
-          <input type="text" id="v_zip" maxlength="5" placeholder="e.g. 59263" inputmode="numeric" />
-        </div>
-        <div class="verify-or">— or —</div>
-        <div class="field">
-          <label>Option 2 — Last 4 digits of your local phone number</label>
-          <input type="text" id="v_phone" maxlength="4" placeholder="e.g. 4821" inputmode="numeric" />
-          <div style="font-size:12px;color:var(--text-hint);margin-top:4px;font-family:'Arial',sans-serif;">We do not store or verify your number — this is just a confirmation step.</div>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="width:100%;padding:11px" onclick="doVerify()">Continue to Surveys</button>
-      <div id="verify_err" style="margin-top:10px;font-family:'Arial',sans-serif;font-size:13px;color:var(--red-600);text-align:center"></div>
-    </div>
-    <div style="text-align:center;font-family:'Arial',sans-serif;font-size:12px;color:var(--text-hint);margin-top:1rem;line-height:1.7">
-      59263 (Scobey), 59253 (Peerless), 59276 (Whitetail), 59222 (Flaxville)<br>
-    </div>
-  </div>`;
-}
-
-function doVerify() {
-  const zip = (document.getElementById("v_zip").value || "").trim();
-  const phone = (document.getElementById("v_phone").value || "").trim();
-  const err = document.getElementById("verify_err");
-
-  if (zip && VALID_ZIPS.includes(zip)) {
-    citizenVerified = true;
-    citizenToken = "Z" + zip + "_" + genToken();
-    renderCitizen();
-    return;
-  }
-  if (phone && /^\d{4}$/.test(phone)) {
-    citizenVerified = true;
-    citizenToken = "P" + phone + "_" + genToken();
-    renderCitizen();
-    return;
-  }
-  err.textContent = "Please enter a valid Daniels County ZIP code (59263, 59253, 59276, or 59222) or the last 4 digits of your local phone number.";
-}
-
-function buildCitizenQuestion(s, resp, alreadyVoted) {
-  const opts = s.options || [];
-  let optsHtml = opts.map((opt, i) => {
-    const sel = selectedAnswers[s.id] === i ? "selected" : "";
-    return `<div class="radio-opt ${sel}" onclick="pickAnswer('${s.id}',${i})" id="ropt_${s.id}_${i}">
-      <input type="radio" name="q_${s.id}" ${sel ? "checked" : ""} style="pointer-events:none"> ${opt}
-    </div>`;
-  }).join("");
-
-  if (s.allowComment) {
-    optsHtml += `<div class="field" style="margin-top:12px">
-      <label>Written comment (optional — still completely anonymous)</label>
-      <textarea id="comment_${s.id}" placeholder="Share any additional thoughts..."></textarea>
-    </div>`;
-  }
-
-  if (alreadyVoted) {
-    optsHtml = `<div class="alert alert-success">You have already submitted a response to this question. Thank you for participating.</div>`;
-  }
-
-  return `<div class="citizen-q-card" id="cqcard_${s.id}">
-    <div class="cq-title">${s.question}</div>
-    ${s.context ? `<div class="cq-context">${s.context}</div>` : ""}
-    <div id="opts_${s.id}">${optsHtml}</div>
-    ${!alreadyVoted ? `<div class="btn-row" style="margin-top:14px">
-      <button class="btn btn-primary" onclick="submitAnswer('${s.id}')">Submit my response</button>
-      <span id="smsg_${s.id}" style="font-family:'Arial',sans-serif;font-size:13px;color:var(--text-muted)"></span>
-    </div>` : ""}
-  </div>`;
-}
-
-function pickAnswer(sid, idx) {
-  selectedAnswers[sid] = idx;
-  const s = document.querySelectorAll(`[id^="ropt_${sid}_"]`);
-  s.forEach((el, i) => {
-    el.classList.toggle("selected", i === idx);
-    const inp = el.querySelector("input");
-    if (inp) inp.checked = (i === idx);
-  });
-}
-
-async function submitAnswer(sid) {
-  const ans = selectedAnswers[sid];
-  const msgEl = document.getElementById("smsg_" + sid);
-  if (ans === undefined) { if(msgEl) msgEl.textContent = "Please select an option."; return; }
-
-  if (localStorage.getItem("voted_" + sid)) {
-    if(msgEl) msgEl.textContent = "You have already responded."; return;
-  }
-
-  const responses = await loadData(SK.responses, {});
-  if (!responses[sid]) responses[sid] = { options: {}, comments: [] };
-  const k = String(ans);
-  responses[sid].options[k] = (responses[sid].options[k] || 0) + 1;
-  const commentEl = document.getElementById("comment_" + sid);
-  if (commentEl && commentEl.value.trim()) {
-    responses[sid].comments.push(commentEl.value.trim());
-  }
-  await saveData(SK.responses, responses);
-
-  localStorage.setItem("voted_" + sid, "1");
-
-  const card = document.getElementById("cqcard_" + sid);
-  if (card) {
-    card.innerHTML = `<div class="cq-title">${card.querySelector(".cq-title")?.textContent || ""}</div>
-      <div class="alert alert-success" style="margin-top:10px">&#10003; Response recorded. Thank you for participating in Daniels County government.</div>`;
-  }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// ADMIN SIDE
-// ══════════════════════════════════════════════════════════════════════════════
-async function renderAdmin() {
-  const el = document.getElementById("view-admin");
-  if (!adminAuthed) { el.innerHTML = buildLoginScreen(); return; }
-  const surveys = await loadData(SK.surveys, []);
-  const responses = await loadData(SK.responses, {});
-
-  const openCount = surveys.filter(s => s.status === "open").length;
-  let totalVotes = 0;
-  Object.values(responses).forEach(r => { Object.values(r.options||{}).forEach(v => totalVotes += Number(v)); });
-
-  const tabContent = currentTab === "questions"
-    ? buildAdminQuestions(surveys, responses)
-    : buildCreateForm(surveys);
-
-  el.innerHTML = `
-    <div class="metrics">
-      <div class="metric"><div class="num">${surveys.length}</div><div class="lbl">Total questions</div></div>
-      <div class="metric"><div class="num blue">${openCount}</div><div class="lbl">Currently open</div></div>
-      <div class="metric"><div class="num green">${totalVotes}</div><div class="lbl">Total responses</div></div>
-    </div>
-    <div class="tabs">
-      <div class="tab ${currentTab==="questions"?"active":""}" onclick="setTab('questions')">Questions &amp; Results</div>
-      <div class="tab ${currentTab==="create"?"active":""}" onclick="setTab('create')">${editingId ? "Edit Question" : "+ New Question"}</div>
-      <div class="tab" onclick="exportResults()" style="margin-left:auto;color:var(--text-muted)">Export CSV</div>
-    </div>
-    <div id="admin-tab-content">${tabContent}</div>
-  `;
-}
-
-function buildLoginScreen() {
-  return `<div class="login-wrap">
-    <div class="card">
-      <div class="card-title">Commissioner Access</div>
-      <div class="field"><label>Password</label><input type="password" id="apass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
-      <div class="btn-row" style="margin-top:12px">
-        <button class="btn btn-primary" onclick="doAdminLogin()">Sign in</button>
-        <span id="login_err" style="font-family:'Arial',sans-serif;font-size:13px;color:var(--red-600)"></span>
-  </div>`;
-}
-
-function doAdminLogin() {
-  const p = (document.getElementById("apass")||{}).value || "";
-  if (p === ADMIN_PASSWORD) { adminAuthed = true; renderAdmin(); }
-  else { const e = document.getElementById("login_err"); if(e) e.textContent = "Incorrect password."; }
-}
-
-function setTab(t) {
-  currentTab = t;
-  if (t !== "create") editingId = null;
-  renderAdmin();
-}
-
-function buildAdminQuestions(surveys, responses) {
-  if (surveys.length === 0) return `<div class="empty">No questions yet.<br>Click "+ New Question" to get started.</div>`;
-  let html = "";
-  [...surveys].reverse().forEach(s => {
-    const r = responses[s.id] || { options: {}, comments: [] };
-    const total = Object.values(r.options||{}).reduce((a,b) => a+Number(b), 0);
-    let bars = "";
-    (s.options||[]).forEach((opt, i) => {
-      const count = Number(r.options[String(i)] || 0);
-      const pct = total ? Math.round(count / total * 100) : 0;
-      bars += `<div class="bar-row">
-        <span class="bar-label" title="${opt}">${opt}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-        <span class="bar-count">${count}</span>
-        <span class="bar-pct">${pct}%</span>
-      </div>`;
-    });
-    const comments = (r.comments||[]);
-    let commentHtml = "";
-    if (comments.length > 0) {
-      commentHtml = `<div class="comments-section"><div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:6px">Written comments (${comments.length})</div>`;
-      comments.slice(0,5).forEach(c => { commentHtml += `<div class="comment-pill">${c}</div>`; });
-      if (comments.length > 5) commentHtml += `<div style="font-size:12px;color:var(--text-hint);font-family:'Arial',sans-serif;margin-top:4px">…and ${comments.length-5} more</div>`;
-      commentHtml += "</div>";
-    }
-    const bClass = s.status==="open"?"badge-open":s.status==="draft"?"badge-draft":"badge-closed";
-    const bLabel = s.status==="open"?"Open":s.status==="draft"?"Draft":"Closed";
-    html += `<div class="q-card">
-      <div class="q-card-top">
-        <div class="q-card-body">
-          <div class="q-text">${s.question}</div>
-          <div class="q-meta" style="margin-top:6px">
-            <span class="badge ${bClass}">${bLabel}</span>
-            <span>${total} response${total!==1?"s":""}</span>
-            <span>${new Date(s.created).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
-          </div>
-        </div>
-        <div class="q-actions">
-          ${s.status==="open" ? `<button class="btn btn-sm" onclick="setStatus('${s.id}','closed')">Close</button>` : ""}
-          ${s.status==="draft" ? `<button class="btn btn-sm btn-primary" onclick="setStatus('${s.id}','open')">Publish</button>` : ""}
-          ${s.status==="closed" ? `<button class="btn btn-sm btn-success" onclick="setStatus('${s.id}','open')">Reopen</button>` : ""}
-          <button class="btn btn-sm" onclick="startEdit('${s.id}')">Edit</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteQ('${s.id}')">Delete</button>
-        </div>
-      </div>
-      ${total > 0 ? `<div class="results" style="margin-top:12px">${bars}</div>` : ""}
-      ${commentHtml}
-      ${s.status==="open" ? `<div class="divider"></div>
-        <div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:6px">Share with residents:</div>
-        <div class="share-box" id="shareurl_${s.id}">Loading URL…</div>
-        <button class="btn btn-sm" onclick="copyShare('${s.id}')">Copy link</button>
-        <script>document.getElementById('shareurl_${s.id}').textContent = window.location.href.split('?')[0];<\/script>` : ""}
-    </div>`;
-  });
-  return html;
-}
-
-function buildCreateForm(surveys) {
-  let ex = null;
-  if (editingId) ex = surveys.find(s => s.id === editingId);
-  const q = ex ? ex.question : "";
-  const ctx = ex ? (ex.context||"") : "";
-  const opts = ex ? ex.options : ["","",""];
-  const allowComment = ex ? (ex.allowComment||false) : false;
-  optionCount = opts.length;
-
-  let optsHtml = opts.map((o, i) => `
-    <div class="opt-row" id="optrow_${i}">
-      <input type="text" id="opt_${i}" value="${o.replace(/"/g,'&quot;')}" placeholder="Option ${i+1}" />
-      ${i >= 2 ? `<button class="opt-rm" onclick="removeOpt(${i})" title="Remove">×</button>` : `<span style="width:30px"></span>`}
-    </div>`).join("");
-
-  return `<div class="card">
-    <div class="field">
-      <label>Question *</label>
-      <textarea id="new_q" placeholder="e.g., Should the county pursue a broadband infrastructure grant for rural areas?">${q}</textarea>
-    </div>
-    <div class="field">
-      <label>Context for residents (optional)</label>
-      <textarea id="new_ctx" placeholder="Brief background — what is being considered and why it matters to Daniels County.">${ctx}</textarea>
-    </div>
-    <div class="field">
-      <label>Response options * (minimum 2)</label>
-      <div class="opt-list" id="opt-list">${optsHtml}</div>
-      <button class="btn btn-sm" onclick="addOpt()">+ Add option</button>
-    </div>
-    <div class="field">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px">
-        <input type="checkbox" id="allow_comment" ${allowComment?"checked":""} style="accent-color:var(--blue-600)">
-        Allow optional written comment (anonymous)
-      </label>
-    </div>
-    <div class="divider"></div>
-    <div class="btn-row">
-      <button class="btn" onclick="saveQuestion('draft')">Save as draft</button>
-      <button class="btn btn-success" onclick="saveQuestion('open')">Publish — go live now</button>
-      ${editingId ? `<button class="btn" onclick="cancelEdit()">Cancel</button>` : ""}
-    </div>
-    <div id="form_msg" style="font-family:'Arial',sans-serif;font-size:13px;color:var(--text-muted);margin-top:10px"></div>
-  </div>`;
-}
-
-function addOpt() {
-  const list = document.getElementById("opt-list");
-  const i = optionCount++;
-  const div = document.createElement("div");
-  div.className = "opt-row"; div.id = "optrow_" + i;
-  div.innerHTML = `<input type="text" id="opt_${i}" placeholder="Option ${i+1}" /><button class="opt-rm" onclick="removeOpt(${i})" title="Remove">×</button>`;
-  list.appendChild(div);
-}
-
-function removeOpt(i) {
-  const row = document.getElementById("optrow_" + i);
-  if (row) row.remove();
-}
-
-async function saveQuestion(status) {
-  const q = (document.getElementById("new_q")||{}).value||"";
-  const ctx = (document.getElementById("new_ctx")||{}).value||"";
-  const allowComment = (document.getElementById("allow_comment")||{}).checked||false;
-  const msg = document.getElementById("form_msg");
-
-  if (!q.trim()) { if(msg) msg.textContent = "Please enter a question."; return; }
-
-  const opts = [];
-  document.querySelectorAll("[id^='opt_']").forEach(el => {
-    if (el.tagName === "INPUT" && el.value.trim()) opts.push(el.value.trim());
-  });
-  if (opts.length < 2) { if(msg) msg.textContent = "Please add at least 2 response options."; return; }
-
-  const surveys = await loadData(SK.surveys, []);
-  if (editingId) {
-    const idx = surveys.findIndex(s => s.id === editingId);
-    if (idx >= 0) surveys[idx] = { ...surveys[idx], question: q.trim(), context: ctx.trim(), options: opts, allowComment, status };
-    editingId = null;
-  } else {
-    surveys.push({ id: genId(), question: q.trim(), context: ctx.trim(), options: opts, allowComment, status, created: Date.now() });
-  }
-  await saveData(SK.surveys, surveys);
-  currentTab = "questions";
-  renderAdmin();
-}
-
-async function setStatus(id, newStatus) {
-  const surveys = await loadData(SK.surveys, []);
-  const s = surveys.find(s => s.id === id);
-  if (s) { s.status = newStatus; await saveData(SK.surveys, surveys); renderAdmin(); }
-}
-
-async function deleteQ(id) {
-  if (!confirm("Delete this question and all its responses? This cannot be undone.")) return;
-  const surveys = (await loadData(SK.surveys, [])).filter(s => s.id !== id);
-  await saveData(SK.surveys, surveys);
-  const r = await loadData(SK.responses, {});
-  delete r[id];
-  await saveData(SK.responses, r);
-  renderAdmin();
-}
-
-function startEdit(id) { editingId = id; currentTab = "create"; renderAdmin(); }
-function cancelEdit() { editingId = null; currentTab = "questions"; renderAdmin(); }
-
-function copyShare(id) {
-  const url = window.location.href.split("?")[0];
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = event.target;
-    btn.textContent = "Copied!";
-    setTimeout(() => { btn.textContent = "Copy link"; }, 2000);
-  });
-}
-
-async function exportResults() {
-  const surveys = await loadData(SK.surveys, []);
-  const responses = await loadData(SK.responses, {});
-  let csv = "Question,Option,Count,Percent,Status,Date\n";
-  surveys.forEach(s => {
-    const r = responses[s.id] || { options: {} };
-    const total = Object.values(r.options||{}).reduce((a,b)=>a+Number(b),0);
-    (s.options||[]).forEach((opt, i) => {
-      const count = Number(r.options[String(i)]||0);
-      const pct = total ? Math.round(count/total*100) : 0;
-      csv += `"${s.question.replace(/"/g,'""')}","${opt.replace(/"/g,'""')}",${count},${pct}%,${s.status},"${new Date(s.created).toLocaleDateString()}"\n`;
-    });
-  });
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "daniels-county-survey-results.csv";
-  a.click();
-}
-
-// ── INIT ─────────────────────────────────────────────────────────────────────
-renderCitizen();
+function toggleMenu() { document.getElementById('nav-links').classList.toggle('open'); }
 </script>
 </body>
 </html>

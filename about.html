@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Daniels County Civic Voice</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-seal">DC</div>
+      <div>
+        <div class="nav-title">Daniels County Civic Voice</div>
+        <div class="nav-sub">Informed citizens, better decisions</div>
+      </div>
+    </a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="survey.html">Have Your Say</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-title">About Daniels County Civic Voice</div>
+  <div class="page-sub">Who we are, why we exist, and what we believe about local democracy.</div>
+
+  <div class="card">
+    <div class="card-label">Our mission</div>
+    <h2 style="margin-bottom:0.75rem">Informed citizens make better decisions</h2>
+    <p style="margin-bottom:0.75rem">Daniels County Civic Voice exists because local government works better when people understand what's happening and have a real way to weigh in. Most county residents never attend a commissioner meeting — not because they don't care, but because life is busy, information is hard to find, and it's not always clear how to participate.</p>
+    <p>This platform tries to fix that. We translate government proceedings into plain language and give residents a verified, anonymous way to share their perspective directly with the people making decisions.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">What we stand for</div>
+    <div class="grid-2" style="margin-top:0.5rem;margin-bottom:0">
+      <div>
+        <h3 style="margin-bottom:0.3rem">Nonpartisan</h3>
+        <p>We don't endorse candidates or take positions on issues. We present information and let residents decide.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem">No ads, no agenda</h3>
+        <p>This platform is free to use and free of advertising. Nobody is paying to have their message promoted here.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem">Honest about uncertainty</h3>
+        <p>When we don't know something, we say so. When an issue is genuinely complex, we show why.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem">Built to last</h3>
+        <p>This platform is designed to outlast any one person or election cycle. Daniels County deserves a permanent civic commons.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Who runs this</div>
+    <h2 style="margin-bottom:0.75rem">A note from the founder</h2>
+    <p style="margin-bottom:0.75rem">Daniels County Civic Voice was founded by Tammi Fladager, a Daniels County Commissioner. The platform grew out of a simple frustration: the gap between what county government is doing and what county residents know about it.</p>
+    <p>This is an attempt to close that gap. It's not a campaign tool — it's a community resource, and the goal is for it to be exactly that long after any individual's term is over.</p>
+  </div>
+
+  <div class="card" style="background:var(--gray-100);border-color:var(--border)">
+    <div class="card-label">Contact</div>
+    <h2 style="margin-bottom:0.5rem">Get in touch</h2>
+    <p style="margin-bottom:1rem">Questions, ideas, or suggestions — we want to hear from you.</p>
+    <a href="mailto:danielscountycivicvoice@gmail.com" class="btn btn-primary btn-sm">Send a message</a>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="survey.html">Have Your Say</a>
+    <a href="about.html">About</a>
+  </div>
+  <div>Daniels County Civic Voice &nbsp;·&nbsp; Serving Scobey, Peerless, Whitetail, Flaxville and all of Daniels County, Montana</div>
+  <div style="margin-top:0.4rem;font-size:12px;opacity:0.6">Nonpartisan &nbsp;·&nbsp; No ads &nbsp;·&nbsp; Community-run</div>
+</footer>
+
+<script>function toggleMenu() { document.getElementById('nav-links').classList.toggle('open'); }</script>
+</body>
+</html>
