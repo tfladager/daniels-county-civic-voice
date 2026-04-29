@@ -21,6 +21,16 @@
   .radio-opt.selected { border-color: var(--blue); background: var(--blue-light); color: var(--blue-dark); }
   .radio-opt input { accent-color: var(--blue); flex-shrink: 0; }
   .err { font-family: 'Arial', sans-serif; font-size: 13px; color: var(--red); margin-top: 8px; text-align: center; }
+  .results-section { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-light); }
+  .results-label { font-family: 'Arial', sans-serif; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-hint); margin-bottom: 0.75rem; }
+  .res-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-family: 'Arial', sans-serif; font-size: 14px; }
+  .res-label { width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); flex-shrink: 0; }
+  .res-label.winner { font-weight: bold; color: var(--text); }
+  .res-track { flex: 1; background: var(--bg-surface2); border-radius: 4px; height: 24px; overflow: hidden; }
+  .res-fill { height: 100%; background: var(--blue); border-radius: 4px; transition: width 0.7s ease; }
+  .res-fill.winner { background: var(--green); }
+  .res-pct { width: 40px; text-align: right; font-weight: bold; color: var(--text-muted); flex-shrink: 0; }
+  .res-total { font-family: 'Arial', sans-serif; font-size: 12px; color: var(--text-hint); margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -64,7 +74,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, increment, arrayUnion, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, increment, arrayUnion, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCQZAEJUwfVdJ8-PruuT3OC4VcDciJxttQ",
@@ -155,23 +165,53 @@
     }
   }
 
+  function buildResults(s, myVoteIdx) {
+    const resp = s.responses || {};
+    const total = (s.options||[]).reduce((sum, _, i) => sum + Number(resp[`opt_${i}`]||0), 0);
+    const maxCount = Math.max(...(s.options||[]).map((_,i) => Number(resp[`opt_${i}`]||0)), 0);
+    const bars = (s.options||[]).map((opt, i) => {
+      const count = Number(resp[`opt_${i}`]||0);
+      const pct = total ? Math.round(count / total * 100) : 0;
+      const isWinner = count === maxCount && maxCount > 0;
+      const isMyVote = myVoteIdx === i;
+      return `<div class="res-row">
+        <span class="res-label ${isWinner?'winner':''}" title="${opt}">${opt}${isMyVote?' ✓':''}</span>
+        <div class="res-track"><div class="res-fill ${isWinner?'winner':''}" style="width:${pct}%"></div></div>
+        <span class="res-pct">${pct}%</span>
+      </div>`;
+    }).join("");
+    return `<div class="results-section">
+      <div class="results-label">How Daniels County is responding</div>
+      ${bars}
+      <div class="res-total">${total} response${total!==1?'s':''} so far${myVoteIdx !== null ? ' — your choice is marked ✓' : ''}</div>
+    </div>`;
+  }
+
   function buildQuestion(s) {
     const alreadyVoted = localStorage.getItem("voted_" + s.id);
+    const myVote = localStorage.getItem("myvote_" + s.id);
+    const myVoteIdx = myVote !== null ? parseInt(myVote) : null;
+
     if (alreadyVoted) {
       return `<div class="q-card" id="qcard_${s.id}">
         <div class="q-title">${s.question}</div>
-        <div class="alert alert-success" style="margin-top:10px">&#10003; You have already submitted a response to this question. Thank you for participating.</div>
+        ${s.context ? `<div class="q-context">${s.context}</div>` : ""}
+        <div class="alert alert-success" style="margin-top:0.5rem">&#10003; Your response has been recorded — thank you for participating!</div>
+        ${buildResults(s, myVoteIdx)}
       </div>`;
     }
+
     const optsHtml = (s.options||[]).map((opt, i) =>
       `<div class="radio-opt" data-sid="${s.id}" data-idx="${i}" id="ro_${s.id}_${i}">
         <input type="radio" name="q_${s.id}" style="pointer-events:none"> ${opt}
       </div>`
     ).join("");
+
     const commentHtml = s.allowComment ? `<div class="field" style="margin-top:12px">
       <label>Written comment (optional — still anonymous)</label>
       <textarea id="cmt_${s.id}" placeholder="Any additional thoughts?"></textarea>
     </div>` : "";
+
     return `<div class="q-card" id="qcard_${s.id}">
       <div class="q-title">${s.question}</div>
       ${s.context ? `<div class="q-context">${s.context}</div>` : ""}
@@ -216,9 +256,19 @@
       if (cmt && cmt.value.trim()) updateData.comments = arrayUnion(cmt.value.trim());
       await updateDoc(doc(db, "surveys", sid), updateData);
       localStorage.setItem("voted_" + sid, "1");
+      localStorage.setItem("myvote_" + sid, String(ans));
+
+      // Fetch fresh results to show accurate counts
+      const fresh = await getDoc(doc(db, "surveys", sid));
+      const freshData = { id: sid, ...fresh.data() };
+
       const card = document.getElementById("qcard_" + sid);
-      if (card) card.innerHTML = `<div class="q-title">${s.question}</div>
-        <div class="alert alert-success" style="margin-top:10px">&#10003; Response recorded. Thank you for participating in Daniels County government.</div>`;
+      if (card) card.innerHTML = `
+        <div class="q-title">${s.question}</div>
+        ${s.context ? `<div class="q-context">${s.context}</div>` : ""}
+        <div class="alert alert-success" style="margin-top:0.5rem">&#10003; Your response has been recorded — thank you for participating!</div>
+        ${buildResults(freshData, ans)}
+      `;
     } catch(e) {
       if(btn) { btn.disabled = false; btn.textContent = "Submit my response"; }
       if(msg) msg.textContent = "Error submitting — please try again.";
