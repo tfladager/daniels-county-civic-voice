@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes from the Desk — Daniels County Civic Voice</title>
+<meta name="description" content="Plain-language, nonpartisan updates on Daniels County government issues.">
+<link rel="stylesheet" href="style.css">
+<style>
+  .note-card { background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .note-date { font-family: 'Arial', sans-serif; font-size: 12px; color: var(--text-hint); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .note-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 0.75rem; line-height: 1.4; }
+  .note-body p { margin-bottom: 0.9rem; line-height: 1.7; }
+  .note-body p:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-seal">DC</div>
+      <div>
+        <div class="nav-title">Daniels County Civic Voice</div>
+        <div class="nav-sub">Informed citizens, better decisions</div>
+      </div>
+    </a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="survey.html">Have Your Say</a></li>
+      <li><a href="notes.html" class="active">Notes from the Desk</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-title">Notes from the Commissioner's Desk</div>
+  <div class="page-sub">Plain-language, nonpartisan updates on Daniels County government issues — no spin, just the facts as they stand.</div>
+  <div id="notes-root"><div class="loading"><div class="spinner"></div><br>Loading notes…</div></div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="survey.html">Have Your Say</a>
+    <a href="notes.html">Notes from the Desk</a>
+    <a href="about.html">About</a>
+  </div>
+  <div>Daniels County Civic Voice &nbsp;·&nbsp; Serving Scobey, Peerless, Whitetail, Flaxville and all of Daniels County, Montana</div>
+  <div style="margin-top:0.4rem;font-size:12px;opacity:0.6">Nonpartisan &nbsp;·&nbsp; No ads &nbsp;·&nbsp; Community-run</div>
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCQZAEJUwfVdJ8-PruuT3OC4VcDciJxttQ",
+    authDomain: "daniels-county-civic-voice.firebaseapp.com",
+    projectId: "daniels-county-civic-voice",
+    storageBucket: "daniels-county-civic-voice.firebasestorage.app",
+    messagingSenderId: "312159661337",
+    appId: "1:312159661337:web:003232ea86525833442988"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  function escapeHtml(str) {
+    const d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function formatBody(body) {
+    return body.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p.trim()).replace(/\n/g,"<br>")}</p>`).join("");
+  }
+
+  async function loadNotes() {
+    const root = document.getElementById("notes-root");
+    try {
+      const q = query(collection(db, "notes"), where("status", "==", "published"));
+      const snap = await getDocs(q);
+      const notes = [];
+      snap.forEach(d => notes.push({ id: d.id, ...d.data() }));
+      notes.sort((a,b) => (b.created?.seconds||0) - (a.created?.seconds||0));
+
+      if (notes.length === 0) {
+        root.innerHTML = `<div class="card" style="text-align:center;padding:3rem 1.5rem">
+          <p style="font-size:15px;color:var(--text-muted)">No notes posted yet.<br>Check back soon.</p>
+        </div>`;
+        return;
+      }
+
+      root.innerHTML = notes.map(n => {
+        const dateStr = n.created?.seconds ? new Date(n.created.seconds*1000).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"}) : "";
+        return `<div class="note-card">
+          <div class="note-date">${dateStr}</div>
+          <div class="note-title">${escapeHtml(n.title||"")}</div>
+          <div class="note-body">${formatBody(n.body||"")}</div>
+        </div>`;
+      }).join("");
+    } catch(e) {
+      root.innerHTML = `<div class="alert alert-warn">Could not load notes. Please check your connection and try again.<br><small style="opacity:0.7">${e.message}</small></div>`;
+    }
+  }
+
+  loadNotes();
+</script>
+<script>function toggleMenu() { document.getElementById('nav-links').classList.toggle('open'); }</script>
+</body>
+</html>

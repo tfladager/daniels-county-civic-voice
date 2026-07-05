@@ -78,10 +78,14 @@
 
   const ADMIN_PASSWORD = "danielsneedsGod";
   let authed = false;
+  let currentSection = "surveys";
   let currentTab = "questions";
   let editingId = null;
   let optCount = 3;
   let allSurveys = [];
+  let allNotes = [];
+  let currentNoteTab = "list";
+  let editingNoteId = null;
 
   const root = document.getElementById("admin-root");
   const logoutBtn = document.getElementById("logout-btn");
@@ -89,17 +93,37 @@
   async function render() {
     if (!authed) { root.innerHTML = buildLogin(); logoutBtn.style.display = "none"; attachLoginListeners(); return; }
     logoutBtn.style.display = "";
-    logoutBtn.onclick = () => { authed = false; render(); };
-    root.innerHTML = `<div class="loading"><div class="spinner"></div><br>Loading surveys…</div>`;
+    logoutBtn.onclick = () => { authed = false; currentSection = "surveys"; render(); };
+    root.innerHTML = `<div class="loading"><div class="spinner"></div><br>Loading…</div>`;
     try {
       const snap = await getDocs(collection(db, "surveys"));
       allSurveys = [];
       snap.forEach(d => allSurveys.push({ id: d.id, ...d.data() }));
       allSurveys.sort((a,b) => (b.created?.seconds||0) - (a.created?.seconds||0));
-      renderDashboard();
+
+      const nsnap = await getDocs(collection(db, "notes"));
+      allNotes = [];
+      nsnap.forEach(d => allNotes.push({ id: d.id, ...d.data() }));
+      allNotes.sort((a,b) => (b.created?.seconds||0) - (a.created?.seconds||0));
+
+      renderShell();
     } catch(e) {
       root.innerHTML = `<div class="alert alert-warn">Error loading data: ${e.message}</div>`;
     }
+  }
+
+  function renderShell() {
+    root.innerHTML = `
+      <div class="tabs" style="margin-bottom:1.5rem">
+        <div class="tab ${currentSection==="surveys"?"active":""}" id="sec-surveys">Surveys</div>
+        <div class="tab ${currentSection==="notes"?"active":""}" id="sec-notes">Commissioner's Notes</div>
+      </div>
+      <div id="section-body"></div>
+    `;
+    document.getElementById("sec-surveys").onclick = () => { currentSection="surveys"; renderShell(); };
+    document.getElementById("sec-notes").onclick = () => { currentSection="notes"; renderShell(); };
+    if (currentSection === "surveys") renderDashboard();
+    else renderNotesDashboard();
   }
 
   function buildLogin() {
@@ -134,7 +158,7 @@
     allSurveys.forEach(s => { Object.values(s.responses||{}).forEach(v => totalVotes += Number(v)); });
     const shareBase = window.location.origin + window.location.pathname.replace("admin.html","survey.html");
 
-    root.innerHTML = `
+    document.getElementById("section-body").innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
         <h1 style="font-size:1.4rem">Survey Administration</h1>
         <button class="btn btn-sm" style="border:1px solid var(--border)" id="export-btn">Export CSV</button>
@@ -302,6 +326,113 @@
         await addDoc(collection(db,"surveys"), { question:q.trim(), context:ctx.trim(), options:opts, allowComment:ac, status, responses:{}, comments:[], created:serverTimestamp() });
       }
       currentTab = "questions";
+      await render();
+    } catch(e) {
+      if(msg) msg.textContent = "Error saving: " + e.message;
+    }
+  }
+
+  function renderNotesDashboard() {
+    const publishedCount = allNotes.filter(n => n.status === "published").length;
+    document.getElementById("section-body").innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+        <h1 style="font-size:1.4rem">Commissioner's Notes</h1>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="num">${allNotes.length}</div><div class="lbl">Total notes</div></div>
+        <div class="metric"><div class="num" style="color:var(--green)">${publishedCount}</div><div class="lbl">Published</div></div>
+        <div class="metric"><div class="num" style="color:var(--amber)">${allNotes.length-publishedCount}</div><div class="lbl">Drafts</div></div>
+      </div>
+      <div class="tabs">
+        <div class="tab ${currentNoteTab==="list"?"active":""}" id="ntab-list">All Notes</div>
+        <div class="tab ${currentNoteTab==="create"?"active":""}" id="ntab-create">${editingNoteId ? "Edit Note" : "+ New Note"}</div>
+      </div>
+      <div id="ntab-body">${currentNoteTab==="list" ? buildNoteList() : buildNoteForm()}</div>
+    `;
+    document.getElementById("ntab-list").onclick = () => { currentNoteTab="list"; editingNoteId=null; renderNotesDashboard(); };
+    document.getElementById("ntab-create").onclick = () => { currentNoteTab="create"; renderNotesDashboard(); };
+    if (currentNoteTab === "list") attachNoteListeners();
+    else attachNoteFormListeners();
+  }
+
+  function buildNoteList() {
+    if (!allNotes.length) return `<div style="text-align:center;color:var(--text-muted);padding:3rem;font-family:'Arial',sans-serif;font-size:14px">No notes yet — click "+ New Note" to write your first one.</div>`;
+    return allNotes.map(n => {
+      const bc = n.status==="published" ? "badge-open" : "badge-draft";
+      const bl = n.status==="published" ? "Published" : "Draft";
+      const dateStr = n.created?.seconds ? new Date(n.created.seconds*1000).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "—";
+      const preview = (n.body||"").slice(0,140) + ((n.body||"").length>140?"…":"");
+      return `<div class="q-card">
+        <div class="q-top">
+          <div class="q-body">
+            <div class="q-text">${n.title}</div>
+            <div class="q-meta" style="margin-top:6px">
+              <span class="badge ${bc}">${bl}</span>
+              <span>${dateStr}</span>
+            </div>
+            <div style="font-family:'Arial',sans-serif;font-size:13px;color:var(--text-muted);margin-top:8px">${preview}</div>
+          </div>
+          <div class="q-actions">
+            ${n.status==="draft"?`<button class="btn btn-sm n-act" data-id="${n.id}" data-act="publish">Publish</button>`:""}
+            ${n.status==="published"?`<button class="btn btn-sm n-act" data-id="${n.id}" data-act="unpublish">Unpublish</button>`:""}
+            <button class="btn btn-sm n-act" data-id="${n.id}" data-act="edit">Edit</button>
+            <button class="btn btn-sm n-act" data-id="${n.id}" data-act="delete" style="color:var(--red);border-color:#f7c1c1;background:var(--red-light)">Delete</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function attachNoteListeners() {
+    document.querySelectorAll(".n-act").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id, act = btn.dataset.act;
+        if (act === "edit") { editingNoteId = id; currentNoteTab = "create"; renderNotesDashboard(); }
+        else if (act === "delete") { if(confirm("Delete this note? This cannot be undone.")) { await deleteDoc(doc(db,"notes",id)); await render(); } }
+        else { await updateDoc(doc(db,"notes",id), { status: act==="publish"?"published":"draft" }); await render(); }
+      });
+    });
+  }
+
+  function buildNoteForm() {
+    const ex = editingNoteId ? allNotes.find(n=>n.id===editingNoteId) : null;
+    const title = ex ? ex.title : "";
+    const body = ex ? ex.body : "";
+    return `<div class="card">
+      <div class="field"><label>Title *</label><input type="text" id="nn-title" value="${(title||"").replace(/"/g,'&quot;')}" placeholder="e.g. Update on the roping barn discussion"></div>
+      <div class="field"><label>Note *</label><textarea id="nn-body" style="min-height:220px" placeholder="Write the update here. Separate paragraphs with a blank line.">${body||""}</textarea></div>
+      <div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-hint);margin-bottom:1rem">Keep it factual and nonpartisan — this is public-facing. Separate paragraphs with a blank line between them.</div>
+      <hr>
+      <div class="btn-row">
+        <button class="btn" id="nn-save-draft">Save as draft</button>
+        <button class="btn btn-success" id="nn-save-pub">Publish — go live now</button>
+        ${editingNoteId?`<button class="btn" id="nn-cancel">Cancel</button>`:""}
+      </div>
+      <div id="nn-msg" style="font-family:'Arial',sans-serif;font-size:13px;color:var(--text-muted);margin-top:10px"></div>
+    </div>`;
+  }
+
+  function attachNoteFormListeners() {
+    document.getElementById("nn-save-draft")?.addEventListener("click", () => saveNote("draft"));
+    document.getElementById("nn-save-pub")?.addEventListener("click", () => saveNote("published"));
+    document.getElementById("nn-cancel")?.addEventListener("click", () => { editingNoteId=null; currentNoteTab="list"; renderNotesDashboard(); });
+  }
+
+  async function saveNote(status) {
+    const title = document.getElementById("nn-title")?.value||"";
+    const body = document.getElementById("nn-body")?.value||"";
+    const msg = document.getElementById("nn-msg");
+    if (!title.trim()) { if(msg) msg.textContent="Please enter a title."; return; }
+    if (!body.trim()) { if(msg) msg.textContent="Please write the note content."; return; }
+    if(msg) msg.textContent = "Saving…";
+    try {
+      if (editingNoteId) {
+        await updateDoc(doc(db,"notes",editingNoteId), { title:title.trim(), body:body.trim(), status });
+        editingNoteId = null;
+      } else {
+        await addDoc(collection(db,"notes"), { title:title.trim(), body:body.trim(), status, created:serverTimestamp() });
+      }
+      currentNoteTab = "list";
       await render();
     } catch(e) {
       if(msg) msg.textContent = "Error saving: " + e.message;
