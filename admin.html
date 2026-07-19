@@ -88,6 +88,9 @@
   let currentNoteTab = "list";
   let editingNoteId = null;
   let expandedComments = new Set();
+  let allAgendas = [];
+  let currentAgendaTab = "list";
+  let editingAgendaId = null;
 
   const root = document.getElementById("admin-root");
   const logoutBtn = document.getElementById("logout-btn");
@@ -108,6 +111,11 @@
       nsnap.forEach(d => allNotes.push({ id: d.id, ...d.data() }));
       allNotes.sort((a,b) => (b.created?.seconds||0) - (a.created?.seconds||0));
 
+      const asnap = await getDocs(collection(db, "agendas"));
+      allAgendas = [];
+      asnap.forEach(d => allAgendas.push({ id: d.id, ...d.data() }));
+      allAgendas.sort((a,b) => (b.meetingDate||"").localeCompare(a.meetingDate||""));
+
       renderShell();
     } catch(e) {
       root.innerHTML = `<div class="alert alert-warn">Error loading data: ${e.message}</div>`;
@@ -119,13 +127,16 @@
       <div class="tabs" style="margin-bottom:1.5rem">
         <div class="tab ${currentSection==="surveys"?"active":""}" id="sec-surveys">Surveys</div>
         <div class="tab ${currentSection==="notes"?"active":""}" id="sec-notes">Commissioner's Notes</div>
+        <div class="tab ${currentSection==="agendas"?"active":""}" id="sec-agendas">Meeting Agendas</div>
       </div>
       <div id="section-body"></div>
     `;
     document.getElementById("sec-surveys").onclick = () => { currentSection="surveys"; renderShell(); };
     document.getElementById("sec-notes").onclick = () => { currentSection="notes"; renderShell(); };
+    document.getElementById("sec-agendas").onclick = () => { currentSection="agendas"; renderShell(); };
     if (currentSection === "surveys") renderDashboard();
-    else renderNotesDashboard();
+    else if (currentSection === "notes") renderNotesDashboard();
+    else renderAgendasDashboard();
   }
 
   function buildLogin() {
@@ -472,6 +483,117 @@
         await addDoc(collection(db,"notes"), { title:title.trim(), body:body.trim(), status, created:serverTimestamp() });
       }
       currentNoteTab = "list";
+      await render();
+    } catch(e) {
+      if(msg) msg.textContent = "Error saving: " + e.message;
+    }
+  }
+
+  function renderAgendasDashboard() {
+    const publishedCount = allAgendas.filter(a => a.status === "published").length;
+    document.getElementById("section-body").innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+        <h1 style="font-size:1.4rem">Meeting Agendas</h1>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="num">${allAgendas.length}</div><div class="lbl">Total agendas</div></div>
+        <div class="metric"><div class="num" style="color:var(--green)">${publishedCount}</div><div class="lbl">Published</div></div>
+        <div class="metric"><div class="num" style="color:var(--amber)">${allAgendas.length-publishedCount}</div><div class="lbl">Drafts</div></div>
+      </div>
+      <div class="tabs">
+        <div class="tab ${currentAgendaTab==="list"?"active":""}" id="atab-list">All Agendas</div>
+        <div class="tab ${currentAgendaTab==="create"?"active":""}" id="atab-create">${editingAgendaId ? "Edit Agenda" : "+ New Agenda"}</div>
+      </div>
+      <div id="atab-body">${currentAgendaTab==="list" ? buildAgendaList() : buildAgendaForm()}</div>
+    `;
+    document.getElementById("atab-list").onclick = () => { currentAgendaTab="list"; editingAgendaId=null; renderAgendasDashboard(); };
+    document.getElementById("atab-create").onclick = () => { currentAgendaTab="create"; renderAgendasDashboard(); };
+    if (currentAgendaTab === "list") attachAgendaListeners();
+    else attachAgendaFormListeners();
+  }
+
+  function buildAgendaList() {
+    if (!allAgendas.length) return `<div style="text-align:center;color:var(--text-muted);padding:3rem;font-family:'Arial',sans-serif;font-size:14px">No agendas yet — click "+ New Agenda" to post the first one.</div>`;
+    return allAgendas.map(a => {
+      const bc = a.status==="published" ? "badge-open" : "badge-draft";
+      const bl = a.status==="published" ? "Published" : "Draft";
+      const dateStr = a.meetingDate ? new Date(a.meetingDate+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric",year:"numeric"}) : "No date set";
+      const preview = (a.body||"").slice(0,140) + ((a.body||"").length>140?"…":"");
+      return `<div class="q-card">
+        <div class="q-top">
+          <div class="q-body">
+            <div class="q-text">${a.title}</div>
+            <div class="q-meta" style="margin-top:6px">
+              <span class="badge ${bc}">${bl}</span>
+              <span>${dateStr}</span>
+            </div>
+            <div style="font-family:'Arial',sans-serif;font-size:13px;color:var(--text-muted);margin-top:8px;white-space:pre-line">${preview}</div>
+          </div>
+          <div class="q-actions">
+            ${a.status==="draft"?`<button class="btn btn-sm a-act" data-id="${a.id}" data-act="publish">Publish</button>`:""}
+            ${a.status==="published"?`<button class="btn btn-sm a-act" data-id="${a.id}" data-act="unpublish">Unpublish</button>`:""}
+            <button class="btn btn-sm a-act" data-id="${a.id}" data-act="edit">Edit</button>
+            <button class="btn btn-sm a-act" data-id="${a.id}" data-act="delete" style="color:var(--red);border-color:#f7c1c1;background:var(--red-light)">Delete</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function attachAgendaListeners() {
+    document.querySelectorAll(".a-act").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id, act = btn.dataset.act;
+        if (act === "edit") { editingAgendaId = id; currentAgendaTab = "create"; renderAgendasDashboard(); }
+        else if (act === "delete") { if(confirm("Delete this agenda? This cannot be undone.")) { await deleteDoc(doc(db,"agendas",id)); await render(); } }
+        else { await updateDoc(doc(db,"agendas",id), { status: act==="publish"?"published":"draft" }); await render(); }
+      });
+    });
+  }
+
+  function buildAgendaForm() {
+    const ex = editingAgendaId ? allAgendas.find(a=>a.id===editingAgendaId) : null;
+    const title = ex ? ex.title : "";
+    const meetingDate = ex ? (ex.meetingDate||"") : "";
+    const body = ex ? ex.body : "";
+    return `<div class="card">
+      <div class="field"><label>Title *</label><input type="text" id="an-title" value="${(title||"").replace(/"/g,'&quot;')}" placeholder="e.g. Regular Meeting — Monday, July 20, 2026"></div>
+      <div class="field"><label>Meeting date *</label><input type="date" id="an-date" value="${meetingDate}"></div>
+      <div class="field"><label>Agenda *</label><textarea id="an-body" style="min-height:260px;font-family:'Courier New',monospace" placeholder="Paste or type the agenda items here.">${body||""}</textarea></div>
+      <div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-hint);margin-bottom:1rem">This posts publicly as-is — line breaks are preserved.</div>
+      <hr>
+      <div class="btn-row">
+        <button class="btn" id="an-save-draft">Save as draft</button>
+        <button class="btn btn-success" id="an-save-pub">Publish — go live now</button>
+        ${editingAgendaId?`<button class="btn" id="an-cancel">Cancel</button>`:""}
+      </div>
+      <div id="an-msg" style="font-family:'Arial',sans-serif;font-size:13px;color:var(--text-muted);margin-top:10px"></div>
+    </div>`;
+  }
+
+  function attachAgendaFormListeners() {
+    document.getElementById("an-save-draft")?.addEventListener("click", () => saveAgenda("draft"));
+    document.getElementById("an-save-pub")?.addEventListener("click", () => saveAgenda("published"));
+    document.getElementById("an-cancel")?.addEventListener("click", () => { editingAgendaId=null; currentAgendaTab="list"; renderAgendasDashboard(); });
+  }
+
+  async function saveAgenda(status) {
+    const title = document.getElementById("an-title")?.value||"";
+    const meetingDate = document.getElementById("an-date")?.value||"";
+    const body = document.getElementById("an-body")?.value||"";
+    const msg = document.getElementById("an-msg");
+    if (!title.trim()) { if(msg) msg.textContent="Please enter a title."; return; }
+    if (!meetingDate) { if(msg) msg.textContent="Please set the meeting date."; return; }
+    if (!body.trim()) { if(msg) msg.textContent="Please paste in the agenda content."; return; }
+    if(msg) msg.textContent = "Saving…";
+    try {
+      if (editingAgendaId) {
+        await updateDoc(doc(db,"agendas",editingAgendaId), { title:title.trim(), meetingDate, body:body.trim(), status });
+        editingAgendaId = null;
+      } else {
+        await addDoc(collection(db,"agendas"), { title:title.trim(), meetingDate, body:body.trim(), status, created:serverTimestamp() });
+      }
+      currentAgendaTab = "list";
       await render();
     } catch(e) {
       if(msg) msg.textContent = "Error saving: " + e.message;
