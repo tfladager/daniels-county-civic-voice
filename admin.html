@@ -62,7 +62,8 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCQZAEJUwfVdJ8-PruuT3OC4VcDciJxttQ",
@@ -75,8 +76,8 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
 
-  const ADMIN_PASSWORD = "danielsneedsGod";
   let authed = false;
   let currentSection = "surveys";
   let currentTab = "questions";
@@ -86,6 +87,7 @@
   let allNotes = [];
   let currentNoteTab = "list";
   let editingNoteId = null;
+  let expandedComments = new Set();
 
   const root = document.getElementById("admin-root");
   const logoutBtn = document.getElementById("logout-btn");
@@ -93,7 +95,7 @@
   async function render() {
     if (!authed) { root.innerHTML = buildLogin(); logoutBtn.style.display = "none"; attachLoginListeners(); return; }
     logoutBtn.style.display = "";
-    logoutBtn.onclick = () => { authed = false; currentSection = "surveys"; render(); };
+    logoutBtn.onclick = () => { currentSection = "surveys"; signOut(auth); };
     root.innerHTML = `<div class="loading"><div class="spinner"></div><br>Loading…</div>`;
     try {
       const snap = await getDocs(collection(db, "surveys"));
@@ -129,7 +131,8 @@
   function buildLogin() {
     return `<div class="login-wrap"><div class="card">
       <div class="card-label" style="margin-bottom:1rem">Commissioner sign-in</div>
-      <div class="field"><label>Password</label><input type="password" id="apass" placeholder="Enter password"></div>
+      <div class="field"><label>Email</label><input type="email" id="aemail" placeholder="Enter email" autocomplete="username"></div>
+      <div class="field"><label>Password</label><input type="password" id="apass" placeholder="Enter password" autocomplete="current-password"></div>
       <div class="btn-row" style="margin-top:10px">
         <button class="btn btn-primary" id="login-btn">Sign in</button>
         <span id="lerr" style="font-family:'Arial',sans-serif;font-size:13px;color:var(--red)"></span>
@@ -146,10 +149,17 @@
     }, 50);
   }
 
-  function doLogin() {
+  async function doLogin() {
+    const email = (document.getElementById("aemail")||{}).value||"";
     const p = (document.getElementById("apass")||{}).value||"";
-    if (p === ADMIN_PASSWORD) { authed = true; render(); }
-    else { const e = document.getElementById("lerr"); if(e) e.textContent = "Incorrect password."; }
+    const errEl = document.getElementById("lerr");
+    if (errEl) errEl.textContent = "";
+    try {
+      await signInWithEmailAndPassword(auth, email, p);
+      // onAuthStateChanged will flip `authed` and re-render.
+    } catch (e) {
+      if (errEl) errEl.textContent = "Incorrect email or password.";
+    }
   }
 
   function renderDashboard() {
@@ -182,6 +192,10 @@
     else attachFormListeners();
   }
 
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  }
+
   function buildQList(shareBase) {
     if (!allSurveys.length) return `<div style="text-align:center;color:var(--text-muted);padding:3rem;font-family:'Arial',sans-serif;font-size:14px">No questions yet — click "+ New Question" to get started.</div>`;
     return allSurveys.map(s => {
@@ -200,10 +214,17 @@
       const comments = s.comments||[];
       let cmtHtml = "";
       if (comments.length) {
+        const isExpanded = expandedComments.has(s.id);
+        const shown = isExpanded ? comments : comments.slice(0,5);
+        const remaining = comments.length - shown.length;
         cmtHtml = `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">
           <div style="font-family:'Arial',sans-serif;font-size:12px;color:var(--text-muted);margin-bottom:6px">Written comments (${comments.length})</div>
-          ${comments.slice(0,50).map(c=>`<div class="comment-item">${c}</div>`).join("")}
-          ${comments.length>5?`<div style="font-size:12px;color:var(--text-hint);font-family:'Arial',sans-serif">…and ${comments.length-5} more</div>`:""}
+          ${shown.map((c,idx)=>`<div class="comment-item" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+            <span style="flex:1">${escapeHtml(c)}</span>
+            <button class="cmt-delete" data-id="${s.id}" data-idx="${idx}" title="Delete this comment" style="border:none;background:none;color:var(--text-hint);cursor:pointer;font-size:14px;line-height:1;flex-shrink:0">&#10005;</button>
+          </div>`).join("")}
+          ${remaining>0?`<button class="btn btn-sm cmt-toggle" data-id="${s.id}" style="margin-top:4px">Show ${remaining} more</button>`:""}
+          ${isExpanded && comments.length>5?`<button class="btn btn-sm cmt-toggle" data-id="${s.id}" style="margin-top:4px">Show less</button>`:""}
         </div>`;
       }
       const bc = s.status==="open"?"badge-open":s.status==="draft"?"badge-draft":"badge-closed";
@@ -250,6 +271,24 @@
     document.querySelectorAll(".copy-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         navigator.clipboard.writeText(btn.dataset.url).then(() => { btn.textContent="Copied!"; setTimeout(()=>{btn.textContent="Copy survey link";},2000); });
+      });
+    });
+    document.querySelectorAll(".cmt-toggle").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        if (expandedComments.has(id)) expandedComments.delete(id); else expandedComments.add(id);
+        renderDashboard();
+      });
+    });
+    document.querySelectorAll(".cmt-delete").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id, idx = Number(btn.dataset.idx);
+        const survey = allSurveys.find(s => s.id === id);
+        const rawComment = survey?.comments?.[idx];
+        if (rawComment === undefined) return;
+        if (!confirm("Delete this comment permanently? This cannot be undone.")) return;
+        await updateDoc(doc(db,"surveys",id), { comments: arrayRemove(rawComment) });
+        await render();
       });
     });
   }
@@ -457,7 +496,7 @@
     a.click();
   }
 
-  render();
+  onAuthStateChanged(auth, (user) => { authed = !!user; render(); });
 </script>
 <script>function toggleMenu() { document.getElementById('nav-links').classList.toggle('open'); }</script>
 </body>
