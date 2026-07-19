@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notes from the Desk — Daniels County Civic Voice</title>
-<meta name="description" content="Plain-language, nonpartisan updates on Daniels County government issues.">
+<title>Meeting Agendas — Daniels County Civic Voice</title>
+<meta name="description" content="Upcoming Daniels County Commissioner meeting agendas.">
 <link rel="stylesheet" href="style.css">
 <style>
-  .note-card { background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-  .note-date { font-family: 'Arial', sans-serif; font-size: 12px; color: var(--text-hint); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
-  .note-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 0.75rem; line-height: 1.4; }
-  .note-body p { margin-bottom: 0.9rem; line-height: 1.7; }
-  .note-body p:last-child { margin-bottom: 0; }
+  .agenda-card { background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .agenda-date { font-family: 'Arial', sans-serif; font-size: 12px; color: var(--text-hint); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .agenda-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 0.75rem; line-height: 1.4; }
+  .agenda-body { font-family: 'Courier New', monospace; font-size: 13.5px; line-height: 1.7; white-space: pre-line; }
 </style>
 </head>
 <body>
@@ -31,8 +30,8 @@
     <ul class="nav-links" id="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="survey.html">Have Your Say</a></li>
-      <li><a href="notes.html" class="active">Notes from the Desk</a></li>
-      <li><a href="agendas.html">Meeting Agendas</a></li>
+      <li><a href="notes.html">Notes from the Desk</a></li>
+      <li><a href="agendas.html" class="active">Meeting Agendas</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="admin.html">Admin</a></li>
     </ul>
@@ -40,9 +39,9 @@
 </nav>
 
 <div class="page">
-  <div class="page-title">Notes from the Commissioner's Desk</div>
-  <div class="page-sub">Plain-language, nonpartisan updates on Daniels County government issues — no spin, just the facts as they stand.</div>
-  <div id="notes-root"><div class="loading"><div class="spinner"></div><br>Loading notes…</div></div>
+  <div class="page-title">Meeting Agendas</div>
+  <div class="page-sub">What's on the table at upcoming Daniels County Commissioner meetings.</div>
+  <div id="agendas-root"><div class="loading"><div class="spinner"></div><br>Loading agendas…</div></div>
 </div>
 
 <footer class="site-footer">
@@ -79,40 +78,36 @@
     return d.innerHTML;
   }
 
-  function formatBody(body) {
-    return body.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p.trim()).replace(/\n/g,"<br>")}</p>`).join("");
-  }
-
-  async function loadNotes() {
-    const root = document.getElementById("notes-root");
+  async function loadAgendas() {
+    const root = document.getElementById("agendas-root");
     try {
-      const q = query(collection(db, "notes"), where("status", "==", "published"));
+      const q = query(collection(db, "agendas"), where("status", "==", "published"));
       const snap = await getDocs(q);
-      const notes = [];
-      snap.forEach(d => notes.push({ id: d.id, ...d.data() }));
-      notes.sort((a,b) => (b.created?.seconds||0) - (a.created?.seconds||0));
+      const agendas = [];
+      snap.forEach(d => agendas.push({ id: d.id, ...d.data() }));
+      agendas.sort((a,b) => (b.meetingDate||"").localeCompare(a.meetingDate||""));
 
-      if (notes.length === 0) {
+      if (agendas.length === 0) {
         root.innerHTML = `<div class="card" style="text-align:center;padding:3rem 1.5rem">
-          <p style="font-size:15px;color:var(--text-muted)">No notes posted yet.<br>Check back soon.</p>
+          <p style="font-size:15px;color:var(--text-muted)">No agendas posted yet.<br>Check back soon.</p>
         </div>`;
         return;
       }
 
-      root.innerHTML = notes.map(n => {
-        const dateStr = n.created?.seconds ? new Date(n.created.seconds*1000).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"}) : "";
-        return `<div class="note-card">
-          <div class="note-date">${dateStr}</div>
-          <div class="note-title">${escapeHtml(n.title||"")}</div>
-          <div class="note-body">${formatBody(n.body||"")}</div>
+      root.innerHTML = agendas.map(a => {
+        const dateStr = a.meetingDate ? new Date(a.meetingDate+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}) : "";
+        return `<div class="agenda-card">
+          <div class="agenda-date">${dateStr}</div>
+          <div class="agenda-title">${escapeHtml(a.title||"")}</div>
+          <div class="agenda-body">${escapeHtml(a.body||"")}</div>
         </div>`;
       }).join("");
     } catch(e) {
-      root.innerHTML = `<div class="alert alert-warn">Could not load notes. Please check your connection and try again.<br><small style="opacity:0.7">${e.message}</small></div>`;
+      root.innerHTML = `<div class="alert alert-warn">Could not load agendas. Please check your connection and try again.<br><small style="opacity:0.7">${e.message}</small></div>`;
     }
   }
 
-  loadNotes();
+  loadAgendas();
 </script>
 <script>function toggleMenu() { document.getElementById('nav-links').classList.toggle('open'); }</script>
 </body>
